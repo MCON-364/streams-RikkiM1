@@ -209,8 +209,9 @@ public class StreamHomework {
         return customerOrders.stream()  // Stream of customer orders
                 .flatMap(order -> order.items().stream())  // Flatten all OrderItems from all orders
                 .map(OrderItem::product)  // Map each OrderItem to its Product
-                .collect(Collectors.toCollection(TreeSet::new));  // Collect into a TreeSet to ensure uniqueness and sorting
+                .collect(Collectors.toSet());  // Collect into a TreeSet to ensure uniqueness and sorting
     }
+
     /**
      * Task 1.4: Calculate average value of DELIVERED orders.
      * 
@@ -326,9 +327,21 @@ public class StreamHomework {
     public List<Product> getTopSellingProducts(int n) {
         // TODO: Implement using streams
         // Hint: flatMap to items, group by product, sum quantities, sort
-        return null;
+        return customerOrders.stream()
+                .flatMap(o -> o.items().stream())
+                .collect(Collectors.groupingBy( OrderItem::product,
+                        Collectors.summingInt(OrderItem::quantity)))
+                        .entrySet().stream()
+                        .sorted(Map.Entry.<Product, Integer>comparingByValue().reversed())
+                        .limit(n)
+                        .map(Map.Entry::getKey)
+                        .toList();
     }
-    
+
+
+
+
+
     /**
      * Task 3.3: Get total quantity sold for each product (all orders).
      * 
